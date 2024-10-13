@@ -23,9 +23,11 @@ RPA_FOUND_VALUES = [3, 1, 1, 0, 2, 0, 4, 0, 0, 0, 11]
 EHR_SIGNED_VALUES = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1]
 
 # Colors
-DARK_VIOLET = '#4B0082'
-LIGHT_PINK = 'white'
-LIGHT_VIOLET = '#E6E6FA'
+# GRAPH = '#4B0082'
+GRAPH = '#4B0082'
+GRAPH_BG = 'white'
+BODY_BG = '#E6E6FA'
+# BODY_BG = '#FFDBBB'
 
 # Step 2: Load Data into DataFrame
 data = {
@@ -51,23 +53,18 @@ totals = {
 def create_bar_chart(y_data, title):
     return px.bar(df, x='AGENCY', y=y_data, title=title, 
                   labels={y_data: title}, 
-                  color_discrete_sequence=[DARK_VIOLET] * len(df))
+                  color_discrete_sequence=[GRAPH] * len(df))
 
+# Create bar charts
 fig1 = create_bar_chart('DA_UNSIGNED', 'DA Unsigned per Agency')
-fig1.update_layout(plot_bgcolor=LIGHT_PINK, paper_bgcolor=LIGHT_PINK)
-
 fig2 = create_bar_chart('DA_PREPARED_3M', 'DA Prepared in Last 3 Months')
-fig2.update_layout(plot_bgcolor=LIGHT_PINK, paper_bgcolor=LIGHT_PINK)
-
 fig3 = create_bar_chart('RPA_FOUND', 'RPA DB Unsigned per Agency')
-fig3.update_layout(plot_bgcolor=LIGHT_PINK, paper_bgcolor=LIGHT_PINK)
-
-# Create additional charts
 fig4 = create_bar_chart('EHR_SIGNED', 'EHR Signed per Agency')
-fig4.update_layout(plot_bgcolor=LIGHT_PINK, paper_bgcolor=LIGHT_PINK)
-
 fig5 = create_bar_chart('DA_FILED', 'DA Filed per Agency')
-fig5.update_layout(plot_bgcolor=LIGHT_PINK, paper_bgcolor=LIGHT_PINK)
+
+# Set the font color to black for all figures
+for fig in [fig1, fig2, fig3, fig4, fig5]:
+    fig.update_layout(plot_bgcolor=GRAPH_BG, paper_bgcolor=GRAPH_BG, font=dict(color='black'))
 
 # Total Summary Pie Chart
 totals_pie_data = {
@@ -76,8 +73,8 @@ totals_pie_data = {
 }
 totals_pie_df = pd.DataFrame(totals_pie_data)
 fig_totals_pie = px.pie(totals_pie_df, values='Total', names='Category', title='Total Summary', 
-                         color_discrete_sequence=[DARK_VIOLET, '#6A5ACD', '#8A2BE2', '#9370DB'])
-fig_totals_pie.update_layout(plot_bgcolor=LIGHT_PINK, paper_bgcolor=LIGHT_PINK)
+                         color_discrete_sequence=[GRAPH, '#6A5ACD', '#8A2BE2', '#9370DB'])
+fig_totals_pie.update_layout(plot_bgcolor=GRAPH_BG, paper_bgcolor=GRAPH_BG, font=dict(color='black'))
 
 # Step 5: Set up the Streamlit Layout
 st.set_page_config(page_title="Agency DA Dashboard", layout="wide")
@@ -87,16 +84,16 @@ st.markdown(
     f"""
     <style>
     body {{
-        background-color: {LIGHT_VIOLET};  /* Light violet background */
+        background-color: {BODY_BG};  /* Light orange background */
         color: #333;
         margin: 0;  /* Remove default margin */
         padding: 0; /* Remove default padding */
     }}
     .stApp {{
-        background-color: {LIGHT_VIOLET};  /* Set Streamlit app background */
+        background-color: {BODY_BG};  /* Set Streamlit app background */
     }}
     .metric-container {{
-        border: 2px solid {DARK_VIOLET}; /* Dark violet border */
+        border: 2px solid {GRAPH}; /* Dark violet border */
         border-radius: 10px;  /* Rounded corners */
         padding: 10px;  /* Padding around the text */
         background-color: #ffffff;  /* White background for metrics */
@@ -107,23 +104,17 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Title
-st.markdown("<h2 style='text-align: center;'>Data Overview from Various Agencies</h2>", unsafe_allow_html=True)
-
 # Row 1: Display totals with boxes
 col1, col2, col3, col4 = st.columns(4)
 for col, key in zip([col1, col2, col3, col4], totals.keys()):
     with col:
         st.markdown("<h3 class='metric-container'>"+key.replace('total_', '').replace('_', ' ').upper()+" : "+str(totals[key])+"</h3>", unsafe_allow_html=True)
 
-# Row 2: Display charts
-st.markdown("<h2 style='text-align: center;'>Data Visualizations</h2>", unsafe_allow_html=True)
-
 # Graph Background
 graph_bg = f"""
 <style>
     .plotly-graph-div {{
-        background-color: {LIGHT_PINK};  /* Light pink for graph background */
+        background-color: {GRAPH_BG};  /* Graph background */
         border-radius: 10px;  /* Rounded corners */
     }}
 </style>
@@ -140,6 +131,3 @@ col1, col2, col3 = st.columns(3)
 col1.plotly_chart(fig_totals_pie, use_container_width=True)
 col2.plotly_chart(fig4, use_container_width=True)  # EHR Signed Chart
 col3.plotly_chart(fig5, use_container_width=True)  # DA Filed Chart
-
-# Footer
-st.markdown("<p style='text-align: center;'>Data Source: Agency Dashboard Data</p>", unsafe_allow_html=True)
